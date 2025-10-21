@@ -7,104 +7,88 @@ document.addEventListener('DOMContentLoaded', () => {
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const targetTab = button.dataset.tab;
-
-            // Update button active state
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-
-            // Update content active state
             tabContents.forEach(content => {
-                if (content.id === targetTab) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
+                content.id === targetTab ? content.classList.add('active') : content.classList.remove('active');
             });
         });
     });
 
-    // --- Placeholder Generation Logic ---
+    // --- Real Generation Logic ---
 
     const imageBtn = document.getElementById('generate-image-btn');
-    const videoBtn = document.getElementById('generate-video-btn');
     const imageResultContainer = document.getElementById('image-result-container');
-    const videoResultContainer = document.getElementById('video-result-container');
     const historyList = document.getElementById('history-list');
 
-    // Image Generation Simulation
-    imageBtn.addEventListener('click', () => {
+    // Image Generation
+    imageBtn.addEventListener('click', async () => {
         const prompt = document.getElementById('image-prompt').value;
+        const aspectRatio = document.getElementById('aspect-ratio').value;
+
         if (!prompt) {
             alert("Please enter an image prompt.");
             return;
         }
 
-        // Show loader
+        // Disable button and show loader
+        imageBtn.disabled = true;
+        imageBtn.textContent = "Generating...";
         imageResultContainer.innerHTML = '<div class="loader"></div>';
 
-        // Simulate API call
-        setTimeout(() => {
-            // Placeholder image
-            const imageUrl = 'https://placehold.co/600x600/3B82F6/FFFFFF?text=Generated+Image';
+        try {
+            // --- Send request to our OWN Flask backend ---
+            const response = await fetch('/generate-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    aspect_ratio: aspectRatio,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // Show error message from the backend
+                throw new Error(result.error || 'An unknown error occurred.');
+            }
+
+            // --- Success! Display the real image ---
+            const imageUrl = result.url; // e.g., "/static/generated-images/1234.png"
             imageResultContainer.innerHTML = `
                 <div class="result-item">
-                    <img src="${imageUrl}" alt="Generated Image">
-                    <button class="download-btn">Download Image</button>
+                    <img src="${imageUrl}" alt="Generated Image: ${prompt}">
+                    <a href="${imageUrl}" download="${prompt.substring(0, 20)}.png" class="download-btn">Download Image</a>
                 </div>
             `;
+
             // Add to history
-            addHistoryItem('Image', prompt, imageUrl);
-        }, 2000); // 2-second delay
-    });
+            addHistoryItem('Image', result.prompt, imageUrl);
 
-    // Video Generation Simulation
-    videoBtn.addEventListener('click', () => {
-        const prompt = document.getElementById('video-prompt').value;
-        const file = document.getElementById('video-upload').files[0];
-
-        if (!prompt && !file) {
-            alert("Please enter a video prompt or upload an image.");
-            return;
+        } catch (error) {
+            console.error("Error:", error);
+            imageResultContainer.innerHTML = `<p style="color: #ff8a8a;">Error: ${error.message}</p>`;
+        } finally {
+            // Re-enable button
+            imageBtn.disabled = false;
+            imageBtn.textContent = "Generate";
         }
-
-        // Show loader
-        videoResultContainer.innerHTML = '<div class="loader"></div>';
-
-        // Simulate API call
-        setTimeout(() => {
-            // Placeholder video
-            const videoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
-            videoResultContainer.innerHTML = `
-                <div class="result-item">
-                    <video controls muted autoplay loop src="${videoUrl}"></video>
-                    <button class="download-btn">Download Video</button>
-                </div>
-            `;
-            // Add to history
-            const historyPrompt = file ? `Image-to-Video: ${file.name}` : `Text-to-Video: ${prompt}`;
-            addHistoryItem('Video', historyPrompt, videoUrl);
-        }, 4000); // 4-second delay
     });
 
     // --- History Logic ---
     function addHistoryItem(type, prompt, url) {
-        // Remove the "Your generated content..." placeholder if it exists
         const placeholder = historyList.querySelector('p');
-        if (placeholder) {
-            placeholder.remove();
-        }
+        if (placeholder) placeholder.remove();
 
         const historyItem = document.createElement('div');
-        historyItem.className = 'result-item generator-widget'; // Reuse widget style
+        historyItem.className = 'result-item generator-widget';
         historyItem.style.marginBottom = '1rem';
         historyItem.style.textAlign = 'left';
 
-        let mediaElement;
-        if (type === 'Image') {
-            mediaElement = `<img src="${url}" alt="History Image" style="max-width: 100px; margin-right: 1rem; float: left;">`;
-        } else {
-            mediaElement = `<video muted loop src="${url}" style="max-width: 100px; margin-right: 1rem; float: left;"></video>`;
-        }
+        let mediaElement = `<img src="${url}" alt="History Image" style="max-width: 100px; margin-right: 1rem; float: left;">`;
 
         historyItem.innerHTML = `
             ${mediaElement}
@@ -113,7 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="clear: both;"></div>
         `;
 
-        // Add to the top of the list
         historyList.prepend(historyItem);
     }
+
+    // --- Video Generation Placeholder ---
+    const videoBtn = document.getElementById('generate-video-btn');
+    videoBtn.addEventListener('click', () => {
+         alert("Video generation is not implemented yet, but will be soon!");
+    });
 });
