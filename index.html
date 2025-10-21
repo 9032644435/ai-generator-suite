@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gemini AI Generator</h1>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="image-gen">Image Generation</button>
+            <button class="tab-button" data-tab="video-gen">Video Generation</button>
+            <button class="tab-button" data-tab="history">Generation History</button>
+        </nav>
+
+        <main>
+            <section id="image-gen" class="tab-content active">
+                <div class="generator-widget">
+                    <h2>Create New Image</h2>
+                    <textarea id="image-prompt" placeholder="e.g., A photorealistic image of a red panda wearing a tiny astronaut helmet..."></textarea>
+                    <label for="aspect-ratio">Aspect Ratio:</label>
+                    <select id="aspect-ratio">
+                        <option value="1:1">1:1 (Square)</option>
+                        <option value="16:9">16:9 (Widescreen)</option>
+                        <option value="9:16">9:16 (Portrait)</option>
+                    </select>
+                    <button id="generate-image-btn" class="generate-btn">Generate</button>
+                </div>
+                <div id="image-result-container" class="result-container">
+                    </div>
+            </section>
+
+            <section id="video-gen" class="tab-content">
+                <div class="generator-widget">
+                    <h2>Create New Video</h2>
+                    <label for="video-prompt">Text-to-Video Prompt:</label>
+                    <textarea id="video-prompt" placeholder="e.g., A slow-motion clip of a raindrop hitting a leaf..."></textarea>
+                    <label for="video-upload">Or Image-to-Video:</label>
+                    <input type="file" id="video-upload" accept="image/*">
+                    <button id="generate-video-btn" class="generate-btn">Generate</button>
+                </div>
+                <div id="video-result-container" class="result-container">
+                    </div>
+            </section>
+
+            <section id="history" class="tab-content">
+                <h2>Your Past Creations</h2>
+                <div id="history-list">
+                    <p>Your generated content will appear here.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
