@@ -1,10 +1,8 @@
 #!/bin/bash
+set -e # Exit immediately if a command fails
 
-# Exit immediately if a command exits with a non-zero status.
-set -e
+echo "--- Activating virtual environment ---"
+source /opt/render/project/src/.venv/bin/activate
 
-# Explicitly set the python path
-export PYTHONPATH=/opt/render/project/src/.venv/lib/python3.11/site-packages
-
-# Run the server using the venv's python
-/opt/render/project/src/.venv/bin/python -m gunicorn app:app
+echo "--- Starting Gunicorn ---"
+python -m gunicorn app:app
