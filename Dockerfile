@@ -8,6 +8,7 @@ WORKDIR /app
 # Prevent Python from writing pyc files to disc and buffering stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.11/site-packages"
 
 # Install system dependencies (if any are needed in the future)
 # RUN apt-get update && apt-get install -y --no-install-recommends some-package && rm -rf /var/lib/apt/lists/*
