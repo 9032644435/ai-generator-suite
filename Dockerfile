@@ -26,4 +26,4 @@ EXPOSE 8080
 
 # Define the command to run the application using Gunicorn
 # Use the PORT environment variable provided by Cloud Run
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
